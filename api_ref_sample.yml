@@ -1,0 +1,268 @@
+openapi: 3.0.3
+info:
+  title: test-api
+  version: 0.0.1
+tags:
+  - name: user
+    description: ユーザー情報
+paths:
+  /users:
+    get:
+      tags:
+        - user
+      summary: ユーザー一覧API
+      description: |
+        ユーザーをデフォルトで全件取得して返却します <br>
+        idの昇順。
+      responses:
+        200:
+          description: success operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    address:
+                      type: string
+                    birthday:
+                      type: string
+                      format: date
+                      example: "1999-01-01"
+                      nullable: true
+                    age:
+                      type: integer
+                      nullable: true
+                    sex:
+                      type: string
+                      enum:
+                        - MALE
+                        - FEMALE
+                    memberType:
+                      type: string
+                      nullable: true
+                      enum:
+                        - GENERAL
+                        - SPECIAL
+                        - CHILD
+                        - SENIOR
+    post:
+      tags:
+        - user
+      summary: ユーザー登録API
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                name:
+                  type: string
+                address:
+                  type: string
+                birthday:
+                  type: string
+                  format: date
+                  example: "1909-01-01"
+                  nullable: true
+                age:
+                  type: integer
+                  nullable: true
+                sex:
+                  type: string
+                  enum:
+                    - MALE
+                    - FEMALE
+                memberType:
+                  type: string
+                  nullable: true
+                  enum:
+                    - GENERAL
+                    - SPECIAL
+                    - CHILD
+                    - SENIOR
+      responses:
+        200:
+          description: success operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  address:
+                    type: string
+                  birthday:
+                    type: string
+                    format: date
+                    example: "1909-01-01"
+                    nullable: true
+                  age:
+                    type: integer
+                    nullable: true
+                  sex:
+                    type: string
+                    enum:
+                      - MALE
+                      - FEMALE
+                  memberType:
+                    type: string
+                    nullable: true
+                    enum:
+                      - GENERAL
+                      - SPECIAL
+                      - CHILD
+                      - SENIOR
+
+  /users/{userId}:
+    get:
+      tags:
+        - user
+      summary: ユーザー詳細API
+      description: |
+        ユーザー詳細を取得して返却します <br>
+      parameters:
+        - name: userId
+          in: path
+          description: ユーザーID
+          required: true
+          schema:
+            type: string
+            example: 248c8027-b752-db4c-76c1-fb22a05e9591
+            nullable: false
+      responses:
+        200:
+          description: success operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  address:
+                    type: string
+                  birthday:
+                    type: string
+                    format: date
+                    example: "1909-01-01"
+                    nullable: true
+                  age:
+                    type: integer
+                    nullable: true
+                  sex:
+                    type: string
+                    enum:
+                      - MALE
+                      - FEMALE
+                  memberType:
+                    type: string
+                    nullable: true
+                    enum:
+                      - GENERAL
+                      - SPECIAL
+                      - CHILD
+                      - SENIOR
+
+  /tests/{id}:
+    get:
+      summary: テストAPI（詳細）
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: test
+          in: query
+          schema:
+            type: string
+      responses:
+        200:
+          description: success operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: string
+
+  /tests:
+    get:
+      summary: テストAPI（一覧）
+      parameters:
+        - name: test
+          in: query
+          schema:
+            type: string
+      responses:
+        200:
+          description: success operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+
+    post:
+      summary: テスト登録API
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: string
+      responses:
+        200:
+          description: success operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: string
+
+  /tests/{id}/hoge:
+    post:
+      summary: テストほげ登録API
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: string
+      responses:
+        200:
+          description: success operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: string

@@ -1,0 +1,308 @@
+openapi: 3.0.3
+info:
+  title: KEMOMIMI API
+  description: API documentation for managing equipment and users.
+  version: 0.1.0
+servers:
+  - url: http://
+    description: Production server
+  - url: http://localhost:3000
+    description: ローカル開発環境
+tags:
+  - name: equipments
+    description: 購入/備品管理
+  - name: auth
+    description: 認証
+  - name: users
+    description: ユーザー管理(管理者用)
+security:
+  - UserAuth: []
+paths:
+  /equipments:
+    get:
+      tags:
+        - equipments
+      summary: 備品リストの取得
+      parameters:
+        - name: applicant_id
+          in: query
+          schema:
+            type: integer
+        - name: disposaler_id
+          in: query
+          schema:
+            type: integer
+        - name: type_id
+          in: query
+          schema:
+            type: integer
+        - name: situation_id
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 備品リスト
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Equipment"
+    post:
+      tags:
+        - equipments
+      summary: 購入申請を登録
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EquipmentInput"
+      responses:
+        "201":
+          description: 登録完了
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+  /equipments/{id}:
+    get:
+      tags:
+        - equipments
+      summary: 備品詳細の取得
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 備品詳細
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Equipment"
+    patch:
+      tags:
+        - equipments
+      summary: 承認前の備品詳細の変更
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EquipmentInput"
+      responses:
+        "200":
+          description: 変更に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Equipment"
+        "403":
+          description: 変更に失敗<br>situationがapproved以降だったor自分の申請でなかった
+    put:
+      tags:
+        - equipments
+      summary: 備品状態の更新(管理者)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                situation_id:
+                  type: integer
+      responses:
+        "200":
+          description: 更新成功
+        "403":
+          description: 権限なし
+    delete:
+      tags:
+        - equipments
+      summary: 備品削除
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: 削除成功<br>権限ありor自分の作成した購入申請のみ成功する
+        "403":
+          description: 権限なし<br>備品や他人の購入申請に対しては権限なしなら失敗
+
+  /login:
+    post:
+      tags:
+        - auth
+      security: []
+      summary: ログイン試行
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: 認証に成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        "404":
+          description: 認証に失敗
+
+  /users:
+    get:
+      tags:
+        - users
+      summary: ユーザーリスト取得
+      responses:
+        "200":
+          description: ユーザーのリスト
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+    post:
+      tags:
+        - users
+      summary: ユーザーの追加
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserInput"
+      responses:
+        "201":
+          description: 追加成功
+
+  /users/{user_id}:
+    delete:
+      tags:
+        - users
+      summary: ユーザーの消去
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 削除成功
+        "400":
+          description: 何かしらでuser_idが使われているなどで削除できない
+
+  /tests:
+    get:
+      security: []
+      summary: 状態確認
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+
+components:
+  schemas:
+    Equipment:
+      type: object
+      properties:
+        id:
+          type: integer
+        applicant_id:
+          type: integer
+        disposaler_id:
+          type: integer
+        type_id:
+          type: integer
+        equipment_name:
+          type: string
+        purchase_url:
+          type: string
+        cost:
+          type: integer
+        situation_id:
+          type: integer
+        approval_date:
+          type: string
+          format: date-time
+    EquipmentInput:
+      type: object
+      required:
+        - applicant_id
+        - disposaler_id
+        - type_id
+        - equipment_name
+      properties:
+        applicant_id:
+          type: integer
+        disposaler_id:
+          type: integer
+        type_id:
+          type: integer
+        equipment_name:
+          type: string
+        purchase_url:
+          type: string
+        cost:
+          type: integer
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    UserInput:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+  securitySchemes:
+    UserAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    AdminAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
